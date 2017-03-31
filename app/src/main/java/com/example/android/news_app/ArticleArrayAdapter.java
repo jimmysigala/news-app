@@ -15,6 +15,8 @@ import java.util.List;
 
 public class ArticleArrayAdapter extends ArrayAdapter<Article> {
 
+    private Article articles;
+
     public ArticleArrayAdapter(Context context, List<Article> articles) {
         super(context, 0, articles);
     }
@@ -26,7 +28,8 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
             listItemView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
         }
 
-        Article articles = getItem(position);
+        // Article articles = getItem(position);
+        articles = getItem(position);
 
 
         TextView sectionNameTextView = (TextView) listItemView.findViewById(R.id.sectionName);
@@ -39,8 +42,11 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         webPubDateTextView.setText(articles.getmWebPubDate());
 
         return listItemView;
-
-
     }
+
+    public Article getArticlePosition() {
+        return articles;
+    }
+
 
 }
