@@ -1,5 +1,7 @@
 package com.example.android.news_app;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -126,6 +128,7 @@ public class QueryUtils {
 
                 for (int i = 0; i < itemsArray.length(); i++) {
                     JSONObject currentArticle = itemsArray.getJSONObject(i);
+                    JSONObject fields = currentArticle.optJSONObject("fields");
 
                     if (currentArticle.has("sectionName") && currentArticle.has("webPublicationDate")
                             && currentArticle.has("webTitle") && currentArticle.has("webUrl")) {
@@ -133,8 +136,15 @@ public class QueryUtils {
                         String webPubDate = currentArticle.getString("webPublicationDate");
                         String webTitle = currentArticle.getString("webTitle");
                         String webUrl = currentArticle.getString("webUrl");
+                        
+                        Bitmap thumbnail = null;
+                        if (fields != null){
+                            String thumbnailString = fields.getString("thumbnail");
+                            thumbnail = getBitmap(thumbnailString);
+                        }
+                      
 
-                        articles.add(new Article(sectionName, webTitle, webPubDate, webUrl));
+                        articles.add(new Article(sectionName, webTitle, webPubDate, webUrl, thumbnail ));
                     }
                 }
             }
@@ -142,5 +152,19 @@ public class QueryUtils {
             Log.e("QueryUtils", "Problem parsing the JSON results", e);
         }
         return articles;
+    }
+
+    private static Bitmap getBitmap(String thumbnailString) {
+
+        try {
+            URL url = new URL(thumbnailString);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.connect();
+            InputStream input = urlConnection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            return myBitmap;
+        } catch (IOException e) {
+            return null;
+        }
     }
 }

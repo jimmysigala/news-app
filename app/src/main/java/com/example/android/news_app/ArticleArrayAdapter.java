@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.ParseException;
@@ -43,6 +44,13 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         TextView webPubDateTextView = (TextView) listItemView.findViewById(R.id.webPubDate);
         webPubDateTextView.setText(formatDate(articles.getmWebPubDate()));
 
+        ImageView thumbnail = (ImageView) listItemView.findViewById(R.id.thumbnail);
+        if (articles.getmThumbnail() != null) {
+            thumbnail.setImageBitmap(articles.getmThumbnail());
+        } else {
+            thumbnail.setImageResource(R.drawable.the_guardian);
+        }
+
         return listItemView;
     }
 
@@ -54,7 +62,7 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
 
         try {
             Date date2 = oldFormat.parse(date);
-            SimpleDateFormat newFormat = new SimpleDateFormat("d MMM yyyy h:mm aaa");
+            SimpleDateFormat newFormat = new SimpleDateFormat("MMM d yyyy h:mm aaa");
             formattedDate = newFormat.format(date2);
         } catch (ParseException e) {
             Log.e(ArticleArrayAdapter.class.getName(), "Error parsing date", e);
@@ -62,5 +70,4 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
 
         return formattedDate;
     }
-
 }
