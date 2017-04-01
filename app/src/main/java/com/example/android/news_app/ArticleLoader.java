@@ -16,7 +16,6 @@ public class ArticleLoader extends AsyncTaskLoader<List<Article>> {
     public ArticleLoader(Context context, String url) {
         super(context);
         eURL = url;
-
     }
 
     @Override
@@ -29,7 +28,6 @@ public class ArticleLoader extends AsyncTaskLoader<List<Article>> {
         if (eURL == null) {
             return null;
         }
-
         List<Article> result = QueryUtils.extractArticle(eURL);
         return result;
     }

@@ -10,6 +10,7 @@ public class Article {
     private String mWebPubDate;
     private String mWebURL;
 
+
     public Article(String sectionName, String webTitle, String webPubDate, String webURL) {
 
         mSectionName = sectionName;

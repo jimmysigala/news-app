@@ -26,12 +26,11 @@ public class QueryUtils {
 
     public static final String LOG_TAG = QueryUtils.class.getName();
 
+
     private QueryUtils() {
     }
 
     public static List<Article> extractArticle(String... REQUEST_URL) {
-
-
         URL url = createURL(REQUEST_URL[0]);
 
         String jsonResponse = null;
@@ -42,7 +41,6 @@ public class QueryUtils {
         }
 
         List<Article> articles = extractFeatureFromJson(jsonResponse);
-
         return articles;
     }
 
@@ -92,7 +90,6 @@ public class QueryUtils {
         return jsonResponse;
     }
 
-
     private static String readFromStream(InputStream inputStream) throws IOException {
 
         StringBuilder output = new StringBuilder();
@@ -106,7 +103,6 @@ public class QueryUtils {
             }
         }
         return output.toString();
-
     }
 
     private static List<Article> extractFeatureFromJson(String articlesJSON) {
@@ -120,6 +116,7 @@ public class QueryUtils {
             JSONObject root = new JSONObject(articlesJSON);
             JSONObject response = root.optJSONObject("response");
             JSONArray itemsArray = response.optJSONArray("results");
+
             // TODO
 
 
@@ -128,25 +125,21 @@ public class QueryUtils {
             } else {
 
                 for (int i = 0; i < itemsArray.length(); i++) {
-
                     JSONObject currentArticle = itemsArray.getJSONObject(i);
+
                     if (currentArticle.has("sectionName") && currentArticle.has("webPublicationDate")
                             && currentArticle.has("webTitle") && currentArticle.has("webUrl")) {
-
                         String sectionName = currentArticle.getString("sectionName");
                         String webPubDate = currentArticle.getString("webPublicationDate");
                         String webTitle = currentArticle.getString("webTitle");
                         String webUrl = currentArticle.getString("webUrl");
 
                         articles.add(new Article(sectionName, webTitle, webPubDate, webUrl));
-
                     }
                 }
             }
-
-
         } catch (JSONException e) {
-            Log.e("QueryUtils", "Problem parsign the JSON results", e);
+            Log.e("QueryUtils", "Problem parsing the JSON results", e);
         }
         return articles;
     }

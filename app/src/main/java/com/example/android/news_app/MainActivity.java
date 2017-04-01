@@ -8,7 +8,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -23,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private ArticleArrayAdapter adapter;
     private View progress;
     private TextView mEmptyStateTextView;
-    private String articleUrl = "http://content.guardianapis.com/search?q=lakers&api-key=test";
+    private String articleUrl = "http://content.guardianapis.com/search?q=topstories&api-key=test&show-fields=thumbnail";
     private List<Article> mArticles;
 
 
@@ -43,9 +47,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         articleListView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Intent i = new Intent(Intent.ACTION_VIEW,
-                        Uri.parse(mArticles.get(position).getmWebURL()));
-                startActivity(i);
+
+                if (mArticles != null && !mArticles.isEmpty()) {
+                    Intent i = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse(mArticles.get(position).getmWebURL()));
+                    startActivity(i);
+                }
             }
         });
 
@@ -63,9 +70,44 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             loadingIndicator.setVisibility(View.GONE);
             mEmptyStateTextView.setText(R.string.no_connection);
         }
-
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        //return true;
+
+        searchView.setOnQueryTextListener(
+                new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+
+                        ConnectivityManager connMgr = (ConnectivityManager)
+                                getSystemService(Context.CONNECTIVITY_SERVICE);
+                        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                        if (networkInfo != null && networkInfo.isConnected()) {
+                            View loadingIndicator = findViewById(R.id.loading_spinner);
+                            loadingIndicator.setVisibility(View.VISIBLE);
+                            articleUrl = "http://content.guardianapis.com/search?q= " + query + "&api-key=test&show-fields=thumbnail";
+                            getLoaderManager().restartLoader(1, null, MainActivity.this);
+                        } else {
+                            mEmptyStateTextView.setText(R.string.no_connection);
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        //Text has changed, apply filtering?
+
+                        return false;
+                    }
+                });
+        return true;
+    }
 
     @Override
     public Loader<List<Article>> onCreateLoader(int id, Bundle args) {
@@ -74,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<List<Article>> loader, List<Article> articles) {
-
         mArticles = articles;
 
         progress.setVisibility(View.GONE);
@@ -82,8 +123,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         if (articles != null && !articles.isEmpty()) {
             adapter.addAll(articles);
-
-
         } else {
             mEmptyStateTextView.setText(R.string.no_data);
         }
@@ -92,6 +131,5 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoaderReset(Loader<List<Article>> loader) {
         adapter.clear();
-
     }
 }

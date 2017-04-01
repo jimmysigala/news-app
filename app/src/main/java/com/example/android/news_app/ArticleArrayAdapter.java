@@ -1,12 +1,16 @@
 package com.example.android.news_app;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,9 +32,7 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
             listItemView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
         }
 
-        // Article articles = getItem(position);
         articles = getItem(position);
-
 
         TextView sectionNameTextView = (TextView) listItemView.findViewById(R.id.sectionName);
         sectionNameTextView.setText(articles.getmSectionName());
@@ -39,14 +41,26 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         webTitleTextView.setText(articles.getmWebTitle());
 
         TextView webPubDateTextView = (TextView) listItemView.findViewById(R.id.webPubDate);
-        webPubDateTextView.setText(articles.getmWebPubDate());
+        webPubDateTextView.setText(formatDate(articles.getmWebPubDate()));
 
         return listItemView;
     }
 
-    public Article getArticlePosition() {
-        return articles;
-    }
+    private String formatDate(String date) {
 
+        String formattedDate = "";
+
+        SimpleDateFormat oldFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+        try {
+            Date date2 = oldFormat.parse(date);
+            SimpleDateFormat newFormat = new SimpleDateFormat("d MMM yyyy h:mm aaa");
+            formattedDate = newFormat.format(date2);
+        } catch (ParseException e) {
+            Log.e(ArticleArrayAdapter.class.getName(), "Error parsing date", e);
+        }
+
+        return formattedDate;
+    }
 
 }
