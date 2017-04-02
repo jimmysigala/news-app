@@ -28,13 +28,16 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
 
     public View getView(int position, View convertView, ViewGroup parent) {
 
+        // Inflate the view
         View listItemView = convertView;
         if (listItemView == null) {
             listItemView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
         }
 
+        // Get the object located at this position in the list
         articles = getItem(position);
 
+        // Set the info provided by the web api to the TextViews and ImageView found in list_item.xml
         TextView sectionNameTextView = (TextView) listItemView.findViewById(R.id.sectionName);
         sectionNameTextView.setText(articles.getmSectionName());
 
@@ -44,6 +47,7 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         TextView webPubDateTextView = (TextView) listItemView.findViewById(R.id.webPubDate);
         webPubDateTextView.setText(formatDate(articles.getmWebPubDate()));
 
+        // Use the thumbnail provided by the web api, if null use the image located in drawable folder
         ImageView thumbnail = (ImageView) listItemView.findViewById(R.id.thumbnail);
         if (articles.getmThumbnail() != null) {
             thumbnail.setImageBitmap(articles.getmThumbnail());
@@ -54,10 +58,9 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         return listItemView;
     }
 
+    // This method will format the date
     private String formatDate(String date) {
-
         String formattedDate = "";
-
         SimpleDateFormat oldFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
         try {
@@ -67,7 +70,6 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         } catch (ParseException e) {
             Log.e(ArticleArrayAdapter.class.getName(), "Error parsing date", e);
         }
-
         return formattedDate;
     }
 }

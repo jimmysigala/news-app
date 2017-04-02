@@ -28,13 +28,14 @@ public class QueryUtils {
 
     public static final String LOG_TAG = QueryUtils.class.getName();
 
-
     private QueryUtils() {
     }
 
+    // Return a list of articles from parsing a JSON response
     public static List<Article> extractArticle(String... REQUEST_URL) {
         URL url = createURL(REQUEST_URL[0]);
 
+        // HTTP request to the URL
         String jsonResponse = null;
         try {
             jsonResponse = makeHttpRequest(url);
@@ -42,6 +43,7 @@ public class QueryUtils {
             Log.e(LOG_TAG, "Error closing input stream", e);
         }
 
+        // Extract fields from JSON response
         List<Article> articles = extractFeatureFromJson(jsonResponse);
         return articles;
     }
@@ -73,6 +75,7 @@ public class QueryUtils {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
+            // If request was successful (200) then read the input stream and parse the response
             if (urlConnection.getResponseCode() == 200) {
                 inputStream = urlConnection.getInputStream();
                 jsonResponse = readFromStream(inputStream);
@@ -114,13 +117,11 @@ public class QueryUtils {
 
         List<Article> articles = new ArrayList<>();
 
+        // Extract values from JSON and add to articles list
         try {
             JSONObject root = new JSONObject(articlesJSON);
             JSONObject response = root.optJSONObject("response");
             JSONArray itemsArray = response.optJSONArray("results");
-
-            // TODO
-
 
             if (itemsArray == null) {
                 return null;
@@ -142,8 +143,6 @@ public class QueryUtils {
                             String thumbnailString = fields.getString("thumbnail");
                             thumbnail = getBitmap(thumbnailString);
                         }
-                      
-
                         articles.add(new Article(sectionName, webTitle, webPubDate, webUrl, thumbnail ));
                     }
                 }
@@ -154,6 +153,7 @@ public class QueryUtils {
         return articles;
     }
 
+    // This method returns a bitmap created from the JSON string under "thumbnail"
     private static Bitmap getBitmap(String thumbnailString) {
 
         try {

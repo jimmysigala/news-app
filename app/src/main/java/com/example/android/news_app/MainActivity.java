@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private ArticleArrayAdapter adapter;
     private View progress;
     private TextView mEmptyStateTextView;
-    private String articleUrl = "http://content.guardianapis.com/search?q=topstories&api-key=test&show-fields=thumbnail";
+    private String articleUrl = "http://content.guardianapis.com/search?order-by=newest&page-size=30&api-key=test&show-fields=thumbnail";
     private List<Article> mArticles;
 
 
@@ -52,15 +52,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     Intent i = new Intent(Intent.ACTION_VIEW,
                             Uri.parse(mArticles.get(position).getmWebURL()));
                     startActivity(i);
+
                 }
             }
         });
 
-
+        // Check the state of network connectivity
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
+        // Initialize loader and fetch data if there is a network connection, otherwise display error
         if (networkInfo != null && networkInfo.isConnected()) {
             // Get a reference to the LoaderManager, in order to interact with loaders.
             LoaderManager loaderManager = getLoaderManager();
@@ -77,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         getMenuInflater().inflate(R.menu.main, menu);
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        //return true;
 
         searchView.setOnQueryTextListener(
                 new SearchView.OnQueryTextListener() {
@@ -88,10 +89,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                                 getSystemService(Context.CONNECTIVITY_SERVICE);
                         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
+                        // Initialize loader and fetch data if there is a network connection, otherwise display error
                         if (networkInfo != null && networkInfo.isConnected()) {
                             View loadingIndicator = findViewById(R.id.loading_spinner);
                             loadingIndicator.setVisibility(View.VISIBLE);
-                            articleUrl = "http://content.guardianapis.com/search?q= " + query + "&api-key=test&show-fields=thumbnail";
+                            articleUrl = "http://content.guardianapis.com/search?order-by=relevance&page-size=30&q=" + query + "&api-key=test&show-fields=thumbnail";
                             getLoaderManager().restartLoader(1, null, MainActivity.this);
                         } else {
                             mEmptyStateTextView.setText(R.string.no_connection);
@@ -101,8 +103,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                     @Override
                     public boolean onQueryTextChange(String newText) {
-                        //Text has changed, apply filtering?
-
                         return false;
                     }
                 });
@@ -118,9 +118,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(Loader<List<Article>> loader, List<Article> articles) {
         mArticles = articles;
 
+        // Hide progress spinner, clear adapter of previous data
         progress.setVisibility(View.GONE);
         adapter.clear();
 
+        // Add data to the adapter if not null, otherwise display error message
         if (articles != null && !articles.isEmpty()) {
             adapter.addAll(articles);
         } else {
