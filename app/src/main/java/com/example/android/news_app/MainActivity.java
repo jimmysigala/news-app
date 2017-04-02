@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         progress = findViewById(R.id.loading_spinner);
         mEmptyStateTextView = (TextView) findViewById(R.id.empty_text_view);
 
-
         final ListView articleListView = (ListView) findViewById(R.id.list);
         adapter = new ArticleArrayAdapter(this, new ArrayList<Article>());
         articleListView.setAdapter(adapter);
@@ -52,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     Intent i = new Intent(Intent.ACTION_VIEW,
                             Uri.parse(mArticles.get(position).getmWebURL()));
                     startActivity(i);
-
                 }
             }
         });
@@ -65,12 +63,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // Initialize loader and fetch data if there is a network connection, otherwise display error
         if (networkInfo != null && networkInfo.isConnected()) {
             // Get a reference to the LoaderManager, in order to interact with loaders.
+            mEmptyStateTextView.setVisibility(View.INVISIBLE);
             LoaderManager loaderManager = getLoaderManager();
             loaderManager.initLoader(1, null, this);
         } else {
             View loadingIndicator = findViewById(R.id.loading_spinner);
             loadingIndicator.setVisibility(View.GONE);
             mEmptyStateTextView.setText(R.string.no_connection);
+            mEmptyStateTextView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -93,10 +93,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                         if (networkInfo != null && networkInfo.isConnected()) {
                             View loadingIndicator = findViewById(R.id.loading_spinner);
                             loadingIndicator.setVisibility(View.VISIBLE);
+                            mEmptyStateTextView.setVisibility(View.INVISIBLE);
                             articleUrl = "http://content.guardianapis.com/search?order-by=relevance&page-size=30&q=" + query + "&api-key=test&show-fields=thumbnail";
                             getLoaderManager().restartLoader(1, null, MainActivity.this);
                         } else {
                             mEmptyStateTextView.setText(R.string.no_connection);
+                            mEmptyStateTextView.setVisibility(View.VISIBLE);
                         }
                         return false;
                     }
@@ -124,9 +126,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         // Add data to the adapter if not null, otherwise display error message
         if (articles != null && !articles.isEmpty()) {
+            mEmptyStateTextView.setVisibility(View.INVISIBLE);
             adapter.addAll(articles);
         } else {
             mEmptyStateTextView.setText(R.string.no_data);
+            mEmptyStateTextView.setVisibility(View.VISIBLE);
         }
     }
 
